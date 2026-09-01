@@ -6,6 +6,7 @@ var gui = {
   triangle_checkbox: { value: false, text: "Triangle" },
   texture_checkbox: { value: false, text: "Texture" },
   texture_serie: { value: 1 },
+  slider1 : {value: 1.0, min: 1.0, max: 10.0, text: "Slider Mesh Multiplier"}
 };
 
 var lspc = "\xa0".repeat(10);
