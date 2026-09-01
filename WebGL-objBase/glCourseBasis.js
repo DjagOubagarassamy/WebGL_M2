@@ -302,37 +302,123 @@ class triangle {
 // =====================================================
 
 class texture {
-  // --------------------------------------------
   constructor() {
     this.texture1 = initTexture("bebe.jpg");
     this.texture2 = initTexture("bebe-2.jpg");
-	  this.currentTexture = this.texture1;
-	  this.shaderName = "plane";
-	this.loaded = -1;
-	  this.shader = null;
+    this.currentTexture = this.texture1;
+    this.shaderName = "plane";
+    this.loaded = -1;
+    this.shader = null;
 
-	  this.divx = 100;
-	  this.divy = 100;
-	  this.initAll();
+    this.divx = 1080;
+    this.divy = 1146;
+    this.initAll();
   }
-	
-	initAll() {
+
+  initAll() {
     let vertices = [];
+    let texcoords = [];
     let indices = [];
 
-    // 1. Génération de la grille de points (Coordonnées U, V)
     for (let y = 0; y <= this.divy; y++) {
       for (let x = 0; x <= this.divx; x++) {
         let u = x / this.divx;
         let v = y / this.divy;
-        vertices.push(u, v); 
+
+        vertices.push(u * 2.0 - 1.0, v * 2.0 - 1.0, 0.0);
+        texcoords.push(u, v);
       }
-	}
-		
-		for (let y = 0; y < this.divy; y++) {
-			for (let x = 0; x < this.divx; x++) {
-				p0 
-	}
+    }
+
+    for (let y = 0; y < this.divy; y++) {
+      for (let x = 0; x < this.divx; x++) {
+        let p0 = y * (this.divx + 1) + x;
+        let p1 = p0 + 1;
+        let p2 = p0 + (this.divx + 1);
+        let p3 = p2 + 1;
+
+        indices.push(p0, p1, p2);
+        indices.push(p1, p3, p2);
+      }
+    }
+
+    this.vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    this.vBuffer.itemSize = 3;
+    this.vBuffer.numItems = vertices.length / 3;
+
+    this.tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
+    this.tBuffer.itemSize = 2;
+    this.tBuffer.numItems = texcoords.length / 2;
+
+    this.iBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint32Array(indices),
+      gl.STATIC_DRAW,
+    );
+    this.iBuffer.numItems = indices.length;
+
+    loadShaders(this);
+  }
+
+  setShadersParams() {
+    gl.useProgram(this.shader);
+
+    this.shader.vAttrib = gl.getAttribLocation(this.shader, "aVertexPosition");
+    gl.enableVertexAttribArray(this.shader.vAttrib);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
+    gl.vertexAttribPointer(
+      this.shader.vAttrib,
+      this.vBuffer.itemSize,
+      gl.FLOAT,
+      false,
+      0,
+      0,
+    );
+
+    this.shader.tAttrib = gl.getAttribLocation(this.shader, "aTexCoords");
+    if (this.shader.tAttrib !== -1) {
+      gl.enableVertexAttribArray(this.shader.tAttrib);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.tBuffer);
+      gl.vertexAttribPointer(
+        this.shader.tAttrib,
+        this.tBuffer.itemSize,
+        gl.FLOAT,
+        false,
+        0,
+        0,
+      );
+    }
+
+    this.shader.pMatrixUniform = gl.getUniformLocation(this.shader, "uPMatrix");
+    this.shader.mvMatrixUniform = gl.getUniformLocation(
+      this.shader,
+      "uMVMatrix",
+    );
+    mat4.identity(mvMatrix);
+    mat4.translate(mvMatrix, distCENTER);
+    mat4.multiply(mvMatrix, rotMatrix);
+    gl.uniformMatrix4fv(this.shader.pMatrixUniform, false, pMatrix);
+    gl.uniformMatrix4fv(this.shader.mvMatrixUniform, false, mvMatrix);
+
+    this.shader.samplerUniform = gl.getUniformLocation(this.shader, "uSampler");
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.currentTexture);
+    gl.uniform1i(this.shader.samplerUniform, 0);
+  }
+
+  draw() {
+    if (this.shader && this.loaded == 4) {
+      this.setShadersParams();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.iBuffer);
+      gl.drawElements(gl.TRIANGLES, this.iBuffer.numItems, gl.UNSIGNED_INT, 0);
+    }
+  }
 
   updateTexture() {
     if (gui.texture_serie.value === 1) {
@@ -501,6 +587,7 @@ function webGLStart() {
   PLANE = new plane();
   TRIANGLE = new triangle();
   OBJ1 = new objmesh("bunny.obj");
+  TEXTURE0 = new texture();
 
   //OBJ2 = new objmesh('porsche.obj');
 
@@ -519,6 +606,10 @@ function drawScene() {
 
   if (gui.bunny_checkbox.value) {
     OBJ1.draw();
+  }
+
+  if (gui.texture_checkbox.value) {
+    TEXTURE0.draw();
   }
   //OBJ2.draw();
 }

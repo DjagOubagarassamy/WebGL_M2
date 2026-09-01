@@ -4,6 +4,7 @@ var gui = {
   bunny_checkbox: { value: false, text: "Bunny" },
   plane_checkbox: { value: false, text: "Plane" },
   triangle_checkbox: { value: false, text: "Triangle" },
+  texture_checkbox: { value: false, text: "Texture" },
   texture_serie: { value: 1 },
 };
 
@@ -28,6 +29,7 @@ function initGui() {
   gui_checkbox(sec, gui.bunny_checkbox);
   gui_checkbox(sec, gui.plane_checkbox);
   gui_checkbox(sec, gui.triangle_checkbox);
+  gui_checkbox(sec, gui.texture_checkbox);
   gui_vspace(sec);
 
   sec = gui_section("Objects");

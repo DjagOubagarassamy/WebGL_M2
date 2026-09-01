@@ -13,6 +13,6 @@ void main(void) {
 	vec4 col = texture2D(uSampler, texCoords);
 	float red = col.r;
 	vec3 modified = aVertexPosition;
-	modified.x += red * 5000.0;
+	modified.z += red;
 	gl_Position = uPMatrix * uMVMatrix * vec4(modified, 1.0);
 }
