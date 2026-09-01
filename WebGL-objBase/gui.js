@@ -1,7 +1,10 @@
 function rotate() {}
 
 var gui = {
-  vitesse: { value: 1.0, min: 1.0, max: 10.0, step: 0.2, text: "Vitesse" },
+  bunny_checkbox: { value: false, text: "Bunny" },
+  plane_checkbox: { value: false, text: "Plane" },
+  triangle_checkbox: { value: false, text: "Triangle" },
+  texture_serie: { value: 1 },
 };
 
 var lspc = "\xa0".repeat(10);
@@ -22,35 +25,14 @@ function initGui() {
   table.appendChild(gui.guiBody);
 
   sec = gui_section("Scene Options");
-  gui_slider(sec, gui.spacing);
+  gui_checkbox(sec, gui.bunny_checkbox);
+  gui_checkbox(sec, gui.plane_checkbox);
+  gui_checkbox(sec, gui.triangle_checkbox);
   gui_vspace(sec);
-  gui_slider(sec, gui.transp);
-  gui_slider(sec, gui.hotpoint);
-  gui_vspace(sec);
-  gui_text(sec, "Choix des couleurs du Hot Point");
-  gui_text(sec, "N'EN SELECTIONNER QU'UNE SEULE !");
-  gui_vspace(sec);
-  gui_checkbox(sec, gui.hotpoint_magenta);
-  gui_checkbox(sec, gui.hotpoint_green);
-  gui_checkbox(sec, gui.hotpoint_yellow);
-  gui_vspace(sec);
-  gui_slider(sec, gui.thresL);
-  gui_slider(sec, gui.thresH);
-  gui_vspace(sec);
-  gui_slider(sec, gui.depth);
-  gui_slider(sec, gui.plane);
-  gui_vspace(sec);
-  gui_checkbox(sec, gui.checkbox);
-  gui_vspace(sec);
-  gui_slider(sec, gui.vitesse);
 
   sec = gui_section("Objects");
-  insert(sec, "serie01/view.png", 1);
-  insert(sec, "serie02/view.png", 2);
-  insert(sec, "serie03/view.png", 3);
-  insert(sec, "serie04/view.png", 4);
-  insert(sec, "serie05/view.png", 5);
-  insert(sec, "serie06/view.png", 6);
+  insert(sec, "bebe.jpg", 1);
+  insert(sec, "bebe-2.jpg", 2);
 }
 
 //=============================================================
@@ -60,7 +42,10 @@ function insert(sec, fimg, val) {
   img.setAttribute("width", "122");
   img.setAttribute("height", "122");
   img.addEventListener("click", (e) => {
-    gui.serie.value = val;
+    gui.texture_serie.value = val;
+    if (PLANE) {
+      PLANE.updateTexture();
+    }
   });
   sec.appendChild(img);
   sec.appendChild(document.createTextNode(" "));

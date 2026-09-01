@@ -10,6 +10,7 @@ var distCENTER;
 
 var OBJ1 = null;
 var PLANE = null;
+var TRIANGLE = null;
 
 // =====================================================
 // OBJET 3D, lecture fichier obj
@@ -139,7 +140,18 @@ class plane {
 
     loadShaders(this);
 
-    this.texture = initTexture("bebe.jpg");
+    this.texture1 = initTexture("bebe.jpg");
+    this.texture2 = initTexture("bebe-2.jpg");
+    this.currentTexture = this.texture1;
+  }
+
+  // --------------------------------------------
+  updateTexture() {
+    if (gui.texture_serie.value === 1) {
+      this.currentTexture = this.texture1;
+    } else if (gui.texture_serie.value === 2) {
+      this.currentTexture = this.texture2;
+    }
   }
 
   // --------------------------------------------
@@ -185,7 +197,7 @@ class plane {
 
     this.shader.samplerUniform = gl.getUniformLocation(this.shader, "uSampler");
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.bindTexture(gl.TEXTURE_2D, this.currentTexture);
     gl.uniform1i(this.shader.samplerUniform, 0);
   }
 
@@ -196,6 +208,91 @@ class plane {
 
       gl.drawArrays(gl.TRIANGLE_FAN, 0, this.vBuffer.numItems);
       gl.drawArrays(gl.LINE_LOOP, 0, this.vBuffer.numItems);
+    }
+  }
+}
+
+// =====================================================
+// TRIANGLE 3D
+// =====================================================
+
+class triangle {
+  // --------------------------------------------
+  constructor() {
+    this.shaderName = "triangle";
+    this.loaded = -1;
+    this.shader = null;
+    this.initAll();
+  }
+
+  // --------------------------------------------
+  initAll() {
+    var vertices = [-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0];
+
+    var colors = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+
+    this.vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    this.vBuffer.itemSize = 3;
+    this.vBuffer.numItems = 3;
+
+    this.cBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    this.cBuffer.itemSize = 3;
+    this.cBuffer.numItems = 3;
+
+    loadShaders(this);
+  }
+
+  // --------------------------------------------
+  setShadersParams() {
+    gl.useProgram(this.shader);
+
+    this.shader.vAttrib = gl.getAttribLocation(this.shader, "aVertexPosition");
+    gl.enableVertexAttribArray(this.shader.vAttrib);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vBuffer);
+    gl.vertexAttribPointer(
+      this.shader.vAttrib,
+      this.vBuffer.itemSize,
+      gl.FLOAT,
+      false,
+      0,
+      0,
+    );
+
+    this.shader.cAttrib = gl.getAttribLocation(this.shader, "aVertexColor");
+    gl.enableVertexAttribArray(this.shader.cAttrib);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cBuffer);
+    gl.vertexAttribPointer(
+      this.shader.cAttrib,
+      this.cBuffer.itemSize,
+      gl.FLOAT,
+      false,
+      0,
+      0,
+    );
+
+    this.shader.pMatrixUniform = gl.getUniformLocation(this.shader, "uPMatrix");
+    this.shader.mvMatrixUniform = gl.getUniformLocation(
+      this.shader,
+      "uMVMatrix",
+    );
+
+    mat4.identity(mvMatrix);
+    mat4.translate(mvMatrix, distCENTER);
+    mat4.multiply(mvMatrix, rotMatrix);
+
+    gl.uniformMatrix4fv(this.shader.pMatrixUniform, false, pMatrix);
+    gl.uniformMatrix4fv(this.shader.mvMatrixUniform, false, mvMatrix);
+  }
+
+  // --------------------------------------------
+  draw() {
+    if (this.shader && this.loaded == 4) {
+      this.setShadersParams();
+      gl.drawArrays(gl.TRIANGLES, 0, this.vBuffer.numItems);
     }
   }
 }
@@ -340,6 +437,7 @@ function webGLStart() {
   canvas.onwheel = handleMouseWheel;
 
   initGL(canvas);
+  initGui();
 
   mat4.perspective(
     45,
@@ -355,8 +453,8 @@ function webGLStart() {
   distCENTER = vec3.create([0, -0.2, -3]);
 
   PLANE = new plane();
-
-  //OBJ1 = new objmesh("bunny.obj");
+  TRIANGLE = new triangle();
+  OBJ1 = new objmesh("bunny.obj");
 
   //OBJ2 = new objmesh('porsche.obj');
 
@@ -366,8 +464,15 @@ function webGLStart() {
 // =====================================================
 function drawScene() {
   gl.clear(gl.COLOR_BUFFER_BIT);
-  PLANE.draw();
+  if (gui.plane_checkbox.value) {
+    PLANE.draw();
+  }
+  if (gui.triangle_checkbox.value) {
+    TRIANGLE.draw();
+  }
 
-  OBJ1.draw();
+  if (gui.bunny_checkbox.value) {
+    OBJ1.draw();
+  }
   //OBJ2.draw();
 }
