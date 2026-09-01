@@ -298,6 +298,52 @@ class triangle {
 }
 
 // =====================================================
+// Classe Texture, lecture fichier image
+// =====================================================
+
+class texture {
+  // --------------------------------------------
+  constructor() {
+    this.texture1 = initTexture("bebe.jpg");
+    this.texture2 = initTexture("bebe-2.jpg");
+	  this.currentTexture = this.texture1;
+	  this.shaderName = "plane";
+	this.loaded = -1;
+	  this.shader = null;
+
+	  this.divx = 100;
+	  this.divy = 100;
+	  this.initAll();
+  }
+	
+	initAll() {
+    let vertices = [];
+    let indices = [];
+
+    // 1. Génération de la grille de points (Coordonnées U, V)
+    for (let y = 0; y <= this.divy; y++) {
+      for (let x = 0; x <= this.divx; x++) {
+        let u = x / this.divx;
+        let v = y / this.divy;
+        vertices.push(u, v); 
+      }
+	}
+		
+		for (let y = 0; y < this.divy; y++) {
+			for (let x = 0; x < this.divx; x++) {
+				p0 
+	}
+
+  updateTexture() {
+    if (gui.texture_serie.value === 1) {
+      this.currentTexture = this.texture1;
+    } else if (gui.texture_serie.value === 2) {
+      this.currentTexture = this.texture2;
+    }
+  }
+}
+
+// =====================================================
 // FONCTIONS GENERALES, INITIALISATIONS
 // =====================================================
 
