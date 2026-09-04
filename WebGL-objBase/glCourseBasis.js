@@ -303,19 +303,26 @@ class triangle {
 
 class texture {
   constructor() {
-    this.texture1 = initTexture("bebe.jpg");
-    this.texture2 = initTexture("bebe-2.jpg");
-    this.currentTexture = this.texture1;
     this.shaderName = "plane";
     this.loaded = -1;
     this.shader = null;
 
-    this.divx = 1080;
-    this.divy = 1146;
+    this.divx = gui.divx.value;
+    this.divy = gui.divy.value;
     this.initAll();
   }
 
   initAll() {
+    this.buildGeometry();
+
+    this.texture1 = initTexture("bebe.jpg");
+    this.texture2 = initTexture("bebe-2.jpg");
+    this.currentTexture = this.texture1;
+
+    loadShaders(this);
+  }
+
+  buildGeometry() {
     let vertices = [];
     let texcoords = [];
     let indices = [];
@@ -362,8 +369,16 @@ class texture {
       gl.STATIC_DRAW,
     );
     this.iBuffer.numItems = indices.length;
+  }
 
-    loadShaders(this);
+  updateDivisions() {
+    this.divx = Number(gui.divx.value);
+    this.divy = Number(gui.divy.value);
+    this.buildGeometry();
+  }
+
+  updateHauteur() {
+    this.setShadersParams();
   }
 
   setShadersParams() {
@@ -410,6 +425,10 @@ class texture {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.currentTexture);
     gl.uniform1i(this.shader.samplerUniform, 0);
+
+    this.shader.hauteurUniform = gl.getUniformLocation(this.shader, "uHauteur");
+
+    gl.uniform1f(this.shader.hauteurUniform, Number(gui.hauteur.value));
   }
 
   draw() {
@@ -426,6 +445,10 @@ class texture {
     } else if (gui.texture_serie.value === 2) {
       this.currentTexture = this.texture2;
     }
+  }
+
+  updateHauteur() {
+    this.setShadersParams();
   }
 }
 

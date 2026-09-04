@@ -4,8 +4,11 @@ var gui = {
   bunny_checkbox: { value: false, text: "Bunny" },
   plane_checkbox: { value: false, text: "Plane" },
   triangle_checkbox: { value: false, text: "Triangle" },
-  texture_checkbox: { value: false, text: "Texture" },
+  texture_checkbox: { value: true, text: "Texture" },
   texture_serie: { value: 1 },
+  divx: { value: 100, min: 1, max: 1000, step: 10, text: "Division X" },
+  divy: { value: 100, min: 1, max: 1000, step: 10, text: "Division Y" },
+  hauteur: { value: 100, min: 1, max: 200, step: 1, text: "Hauteur" },
 };
 
 var lspc = "\xa0".repeat(10);
@@ -31,6 +34,12 @@ function initGui() {
   gui_checkbox(sec, gui.triangle_checkbox);
   gui_checkbox(sec, gui.texture_checkbox);
   gui_vspace(sec);
+  gui_slider(sec, gui.divx);
+  gui_slider(sec, gui.divy);
+  gui_slider(sec, gui.hauteur);
+  gui.divx.callback = updateTextureGeometry;
+  gui.divy.callback = updateTextureGeometry;
+  gui.hauteur.callback = updateTextureGeometry;
 
   sec = gui_section("Objects");
   insert(sec, "bebe.jpg", 1);
@@ -47,6 +56,9 @@ function insert(sec, fimg, val) {
     gui.texture_serie.value = val;
     if (PLANE) {
       PLANE.updateTexture();
+    }
+    if (TEXTURE0) {
+      TEXTURE0.updateTexture();
     }
   });
   sec.appendChild(img);
@@ -134,11 +146,19 @@ function gui_slider(sec, obj) {
   obj.slider.addEventListener("input", function () {
     obj.value = obj.slider.value;
     obj.slider.txt.nodeValue = slider.id + ": " + slider.value;
+    if (obj.callback) obj.callback();
   });
 
   sec.appendChild(txt);
   sec.appendChild(slider);
   sec.appendChild(document.createElement("br"));
+}
+
+function updateTextureGeometry() {
+  if (typeof TEXTURE0 !== "undefined" && TEXTURE0) {
+    TEXTURE0.updateDivisions();
+    TEXTURE0.updateHauteur();
+  }
 }
 
 //=============================================================
