@@ -9,6 +9,14 @@ var gui = {
   divx: { value: 100, min: 1, max: 1000, step: 10, text: "Division X" },
   divy: { value: 100, min: 1, max: 1000, step: 10, text: "Division Y" },
   hauteur: { value: 100, min: 1, max: 200, step: 1, text: "Hauteur" },
+  interpolation_checkbox: { value: false, text: "Interpolation bicubique" },
+  interpolation_intensity: {
+    value: 4,
+    min: 1,
+    max: 20,
+    step: 1,
+    text: "Intensité interpolation",
+  },
 };
 
 var lspc = "\xa0".repeat(10);
@@ -37,9 +45,13 @@ function initGui() {
   gui_slider(sec, gui.divx);
   gui_slider(sec, gui.divy);
   gui_slider(sec, gui.hauteur);
+  gui_checkbox(sec, gui.interpolation_checkbox);
+  gui_slider(sec, gui.interpolation_intensity);
   gui.divx.callback = updateTextureGeometry;
   gui.divy.callback = updateTextureGeometry;
   gui.hauteur.callback = updateTextureGeometry;
+  gui.interpolation_checkbox.callback = updateInterpolation;
+  gui.interpolation_intensity.callback = updateInterpolation;
 
   sec = gui_section("Objects");
   insert(sec, "bebe.jpg", 1);
@@ -158,6 +170,12 @@ function updateTextureGeometry() {
   if (typeof TEXTURE0 !== "undefined" && TEXTURE0) {
     TEXTURE0.updateDivisions();
     TEXTURE0.updateHauteur();
+  }
+}
+
+function updateInterpolation() {
+  if (typeof TEXTURE0 !== "undefined" && TEXTURE0) {
+    TEXTURE0.setShadersParams();
   }
 }
 

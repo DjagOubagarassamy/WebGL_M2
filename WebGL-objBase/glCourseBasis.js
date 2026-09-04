@@ -303,7 +303,7 @@ class triangle {
 
 class texture {
   constructor() {
-    this.shaderName = "plane";
+    this.shaderName = "texture";
     this.loaded = -1;
     this.shader = null;
 
@@ -427,8 +427,39 @@ class texture {
     gl.uniform1i(this.shader.samplerUniform, 0);
 
     this.shader.hauteurUniform = gl.getUniformLocation(this.shader, "uHauteur");
-
     gl.uniform1f(this.shader.hauteurUniform, Number(gui.hauteur.value));
+
+    this.shader.controlSizeUniform = gl.getUniformLocation(
+      this.shader,
+      "uControlSize",
+    );
+    var intensity = Math.max(1, Number(gui.interpolation_intensity.value));
+    var controlX = Math.max(4, Math.round(Number(this.divx) / intensity));
+    var controlY = Math.max(4, Math.round(Number(this.divy) / intensity));
+    gl.uniform2f(this.shader.controlSizeUniform, controlX, controlY);
+
+    this.shader.textureSizeUniform = gl.getUniformLocation(
+      this.shader,
+      "uTextureSize",
+    );
+    var texW =
+      this.currentTexture && this.currentTexture.image
+        ? this.currentTexture.image.width
+        : 0;
+    var texH =
+      this.currentTexture && this.currentTexture.image
+        ? this.currentTexture.image.height
+        : 0;
+    gl.uniform2f(this.shader.textureSizeUniform, texW || 1.0, texH || 1.0);
+
+    this.shader.interpolationUniform = gl.getUniformLocation(
+      this.shader,
+      "uInterpolation",
+    );
+    gl.uniform1f(
+      this.shader.interpolationUniform,
+      gui.interpolation_checkbox.value ? 1.0 : 0.0,
+    );
   }
 
   draw() {
@@ -574,9 +605,14 @@ function initTexture(imgName) {
       texture.image,
     );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      gl.LINEAR_MIPMAP_LINEAR,
+    );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.generateMipmap(gl.TEXTURE_2D);
   };
 
   return texture;
