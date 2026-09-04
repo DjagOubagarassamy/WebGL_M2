@@ -20,7 +20,7 @@ class objmesh {
   // --------------------------------------------
   constructor(objFname) {
     this.objName = objFname;
-    this.shaderName = "plane";
+    this.shaderName = "obj";
     this.loaded = -1;
     this.shader = null;
     this.mesh = null;
@@ -139,19 +139,6 @@ class plane {
     this.tBuffer.numItems = 4;
 
     loadShaders(this);
-
-    this.texture1 = initTexture("bebe.jpg");
-    this.texture2 = initTexture("bebe-2.jpg");
-    this.currentTexture = this.texture1;
-  }
-
-  // --------------------------------------------
-  updateTexture() {
-    if (gui.texture_serie.value === 1) {
-      this.currentTexture = this.texture1;
-    } else if (gui.texture_serie.value === 2) {
-      this.currentTexture = this.texture2;
-    }
   }
 
   // --------------------------------------------
@@ -303,7 +290,7 @@ class triangle {
 
 class texture {
   constructor() {
-    this.shaderName = "plane";
+    this.shaderName = "texture";
     this.loaded = -1;
     this.shader = null;
 

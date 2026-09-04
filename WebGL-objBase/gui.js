@@ -6,8 +6,8 @@ var gui = {
   triangle_checkbox: { value: false, text: "Triangle" },
   texture_checkbox: { value: true, text: "Texture" },
   texture_serie: { value: 1 },
-  divx: { value: 100, min: 1, max: 1000, step: 10, text: "Division X" },
-  divy: { value: 100, min: 1, max: 1000, step: 10, text: "Division Y" },
+  divx: { value: 500, min: 100, max: 1000, step: 10, text: "Division X" },
+  divy: { value: 500, min: 100, max: 1000, step: 10, text: "Division Y" },
   hauteur: { value: 100, min: 1, max: 200, step: 1, text: "Hauteur" },
 };
 
@@ -54,9 +54,6 @@ function insert(sec, fimg, val) {
   img.setAttribute("height", "122");
   img.addEventListener("click", (e) => {
     gui.texture_serie.value = val;
-    if (PLANE) {
-      PLANE.updateTexture();
-    }
     if (TEXTURE0) {
       TEXTURE0.updateTexture();
     }
